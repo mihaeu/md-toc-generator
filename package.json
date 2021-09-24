@@ -1,0 +1,28 @@
+{
+	"name": "md-toc-generator",
+	"version": "1.0.0",
+	"bin": "bin/md-toc-generator",
+	"main": "src/md-toc-generator.js",
+	"repository": "https://github.com/mihaeu/md-toc-generator",
+	"author": "Michael Häuslmann <michael.haeuslmann@gmail.com>",
+	"contributors": [
+		"Bea David <info@justb3a.com>"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"markdown-toc": "^1.2.0"
+	},
+	"files": [
+		"src",
+		"bin"
+	],
+	"devDependencies": {
+		"jest": "^27.2.1",
+		"prettier": "^2.4.1"
+	},
+	"scripts": {
+		"test": "jest",
+		"fix": "prettier --write .",
+		"lint": "prettier --check ."
+	}
+}

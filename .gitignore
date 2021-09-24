@@ -1,0 +1,8 @@
+# IntelliJ meta data
+.idea
+
+# modules
+node_modules
+
+# generate by jest for code coverage
+coverage

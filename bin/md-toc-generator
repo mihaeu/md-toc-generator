@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+const {mdTOCGenerator} = require("../src/md-toc-generator");
+
+try {
+  mdTOCGenerator(process.argv)
+} catch (e) {
+  process.stderr.write(e.message)
+  process.exit(1)
+}
