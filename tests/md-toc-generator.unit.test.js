@@ -1,5 +1,6 @@
 const util = require("util")
 const writeFile = util.promisify(require("fs").writeFile)
+const readFile = util.promisify(require("fs").readFile)
 const { mdTOCGenerator } = require("../src/md-toc-generator")
 
 let stdout
@@ -10,6 +11,46 @@ process.stdout.write = s => {
 describe("md-toc-generator", () => {
 	beforeEach(() => {
 		stdout = ""
+	})
+
+	it("should generate a toc for proper markdown input", async () => {
+		const inputMarkdown = `${__dirname}/examples/should-generate-a-toc-for-proper-markdown-input/README.md`
+		await writeFile(
+			inputMarkdown,
+			`# test
+
+[//]: # "BEGIN_TOC"
+
+[//]: # "END_TOC"
+
+# h1
+## h2
+### h3
+#### h4
+##### h5`,
+		)
+
+		mdTOCGenerator(["--paths", inputMarkdown])
+		expect(stdout).toBe(
+			`\nThe markdown file '${inputMarkdown}' will be processed for ToC generation!\nUpdating the ToC for you….\n`,
+		)
+		expect((await readFile(inputMarkdown)).toString()).toBe(`# test
+
+[//]: # "BEGIN_TOC"
+
+1. [h1](#h1)
+1. [h2](#h2)
+   1. [h3](#h3)
+      1. [h4](#h4)
+         1. [h5](#h5)
+
+[//]: # "END_TOC"
+
+# h1
+## h2
+### h3
+#### h4
+##### h5`)
 	})
 
 	it("should fail if no markdown files exist", () => {

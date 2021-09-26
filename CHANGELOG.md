@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Indentation from 3 to 4 spaces
+
 ## [1.0.0] - 2021-09-26
 
 ### Added
