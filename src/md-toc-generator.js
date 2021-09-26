@@ -36,9 +36,9 @@ const processToCInPath = (filePath, isCI) => {
 
 	const options = {
 		firsth1: false,
-		bullets: "  1.",
+		bullets: "1.",
 	}
-	const generatedToC = toc(markdownContent, options).content.replace(/^ {2}/gm, "").replace(/ {2}/g, "   ")
+	const generatedToC = toc(markdownContent, options).content.replace(/ {2}/g, " ".repeat(4))
 
 	if (!markdownContent.includes(generatedToC)) {
 		if (isCI) {
