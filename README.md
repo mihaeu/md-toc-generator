@@ -43,6 +43,8 @@ If you want to lint your markdown files to see if the ToC is up to date, but wit
 md-toc-generator --ci
 ```
 
+If you want to ensure that given markdown files have a toc, use the `--placeholder-required` option.
+
 ## License
 
 See [`LICENSE`](LICENSE) file.

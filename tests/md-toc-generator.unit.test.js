@@ -54,11 +54,9 @@ describe("md-toc-generator", () => {
 	})
 
 	it("should fail if no markdown files exist", () => {
-		try {
-			mdTOCGenerator(["--paths", `${__dirname}/examples/should-fail-if-no-markdown-files-exist`])
-		} catch (e) {
-			expect(e.message).toContain("No markdown file provided or file doesn't exist.")
-		}
+		expect(
+			mdTOCGenerator.bind(null, ["--paths", `${__dirname}/examples/should-fail-if-no-markdown-files-exist`]),
+		).toThrow("No markdown file provided or file doesn't exist.")
 	})
 
 	it("should use paths argument", async () => {
@@ -91,40 +89,27 @@ The markdown file 'README.md' will be processed for ToC generation!
 ✨  ToC in 'README.md' is up to date.\n`)
 	})
 
-	it("should fail if no placeholder found", () => {
-		try {
-			mdTOCGenerator(["--paths", `${__dirname}/examples/should-fail-if-no-placeholder-found/test.md`])
-		} catch (e) {
-			expect(e.message)
-				.toBe(`No placeholder for ToC found. Add the following snippet to '${__dirname}/examples/should-fail-if-no-placeholder-found/test.md'
+	it("should fail if no placeholder found and --require-placeholder set", () => {
+		const inputMarkdown = `${__dirname}/examples/should-fail-if-no-placeholder-found-and-placeholder-required-set/test.md`
+		expect(mdTOCGenerator.bind(null, ["--placeholder-required", "--paths", inputMarkdown]))
+			.toThrow(`No placeholder for ToC found. Add the following snippet to '${inputMarkdown}'
 
 [//]: # "BEGIN_TOC"
 ...
 [//]: # "END_TOC"\n`)
-		}
+	})
+
+	it("should not fail if no placeholder found", () => {
+		const inputMarkdown = `${__dirname}/examples/should-not-fail-if-no-placeholder-found/test.md`
+		mdTOCGenerator(["--paths", inputMarkdown])
+		expect(stdout).toBe(`Skipping '${inputMarkdown}' because no placeholder was found.
+`)
 	})
 
 	it("should fail in CI mode if ToC is not up to date", async () => {
-		const inputMarkdown = `${__dirname}/examples/should-use-paths-argument/test.md`
-		await writeFile(
-			inputMarkdown,
-			`
-# test
-
-[//]: # "BEGIN_TOC"
-
-[//]: # "END_TOC"
-
-## Missing headline
-`,
+		const inputMarkdown = `${__dirname}/examples/should-fail-in-ci-mode-if-toc-is-not-up-to-date/test.md`
+		expect(mdTOCGenerator.bind(null, ["--ci", "--paths", inputMarkdown])).toThrow(
+			`Expected ToC to be up to date. Please run 'yarn toc-update --paths ${inputMarkdown}' locally and commit the changes.\n`,
 		)
-
-		try {
-			mdTOCGenerator(["--ci", "--paths", inputMarkdown])
-		} catch (e) {
-			expect(e.message).toBe(
-				`Expected ToC to be up to date. Please run 'yarn toc-update --paths ${inputMarkdown}' locally and commit the changes.\n`,
-			)
-		}
 	})
 })

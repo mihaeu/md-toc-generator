@@ -54,6 +54,7 @@ describe("md-toc-generator", () => {
 			expect(e.code).toBe(1)
 			expect(e.message).toContain("No markdown file provided or file doesn't exist.")
 		}
+		expect.assertions(2)
 	})
 
 	it("should use paths argument", async () => {
@@ -88,44 +89,38 @@ The markdown file 'README.md' will be processed for ToC generation!
 		expect(stderr).toBe("")
 	})
 
-	it("should fail if no placeholder found", async () => {
+	it("should fail if no placeholder found and --require-placeholder set", async () => {
+		const inputMarkdown = `${__dirname}/examples/should-fail-if-no-placeholder-found-and-placeholder-required-set/test.md`
 		try {
-			await exec(
-				`${__dirname}/../bin/md-toc-generator --paths ${__dirname}/examples/should-fail-if-no-placeholder-found/test.md`,
-			)
+			await exec(`${__dirname}/../bin/md-toc-generator --paths ${inputMarkdown} --placeholder-required`)
 		} catch (e) {
 			expect(e.code).toBe(1)
-			expect(e.message)
-				.toContain(`No placeholder for ToC found. Add the following snippet to '${__dirname}/examples/should-fail-if-no-placeholder-found/test.md'
+			expect(e.message).toContain(`No placeholder for ToC found. Add the following snippet to '${inputMarkdown}'
 
 [//]: # "BEGIN_TOC"
 ...
 [//]: # "END_TOC"\n`)
 		}
+		expect.assertions(2)
+	})
+
+	it("should not fail if no placeholder found", async () => {
+		const inputMarkdown = `${__dirname}/examples/should-not-fail-if-no-placeholder-found/test.md`
+		const { stdout, stderr } = await exec(`${__dirname}/../bin/md-toc-generator --paths ${inputMarkdown}`)
+		expect(stdout).toBe(`Skipping '${inputMarkdown}' because no placeholder was found.\n`)
+		expect(stderr).toBe("")
 	})
 
 	it("should fail in CI mode if ToC is not up to date", async () => {
-		const inputMarkdown = `${__dirname}/examples/should-use-paths-argument/test.md`
-		await writeFile(
-			inputMarkdown,
-			`
-# test
-
-[//]: # "BEGIN_TOC"
-
-[//]: # "END_TOC"
-
-## Missing headline
-`,
-		)
-
+		const inputMarkdown = `${__dirname}/examples/should-fail-in-ci-mode-if-toc-is-not-up-to-date/test.md`
 		try {
-			await exec(`${__dirname}/../bin/md-toc-generator --paths ${inputMarkdown}`)
+			await exec(`${__dirname}/../bin/md-toc-generator --ci --paths ${inputMarkdown}`)
 		} catch (e) {
 			expect(e.code).toBe(1)
-			expect(e.message).toBe(
+			expect(e.message).toContain(
 				`Expected ToC to be up to date. Please run 'yarn toc-update --paths ${inputMarkdown}' locally and commit the changes.\n`,
 			)
 		}
+		expect.assertions(2)
 	})
 })

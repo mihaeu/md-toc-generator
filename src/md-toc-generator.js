@@ -13,7 +13,7 @@ const resolveArgument = (argv, name, hasValue = false) => {
 	return argv.filter((value, index) => index > argumentIndex)
 }
 
-const processToCInPath = (filePath, isCI) => {
+const processToCInPath = (filePath, isCI, isPlaceholderRequired) => {
 	if (!filePath.match(/\.md$/) || !fs.existsSync(filePath)) {
 		throw new Error(
 			`\nNo markdown file provided or file doesn't exist. Usage: '${path.basename(
@@ -22,22 +22,26 @@ const processToCInPath = (filePath, isCI) => {
 		)
 	}
 
-	process.stdout.write(`\nThe markdown file '${filePath}' will be processed for ToC generation!\n`)
-
 	const markdownContent = fs.readFileSync(filePath).toString()
 	if (!markdownContent.match(/\[\/\/]: # .?BEGIN_TOC.?/) || !markdownContent.match(/\[\/\/]: # .?END_TOC.?/)) {
-		throw new Error(`No placeholder for ToC found. Add the following snippet to '${filePath}'
+		if (isPlaceholderRequired) {
+			throw new Error(`No placeholder for ToC found. Add the following snippet to '${filePath}'
 
 [//]: # "BEGIN_TOC"
 ...
 [//]: # "END_TOC"
 `)
+		} else {
+			process.stdout.write(`Skipping '${filePath}' because no placeholder was found.\n`)
+			return
+		}
 	}
 
 	const options = {
 		firsth1: false,
 		bullets: "1.",
 	}
+	process.stdout.write(`\nThe markdown file '${filePath}' will be processed for ToC generation!\n`)
 	const generatedToC = toc(markdownContent, options).content.replace(/ {2}/g, " ".repeat(4))
 
 	if (!markdownContent.includes(generatedToC)) {
@@ -63,6 +67,7 @@ const processToCInPath = (filePath, isCI) => {
 
 exports.mdTOCGenerator = argv => {
 	const isCI = resolveArgument(argv, "ci")
+	const isPlaceholderRequired = resolveArgument(argv, "placeholder-required")
 	let paths = resolveArgument(argv, "paths", true)
 
 	if (!paths) {
@@ -71,6 +76,6 @@ exports.mdTOCGenerator = argv => {
 	}
 
 	paths.forEach(filePath => {
-		processToCInPath(filePath, isCI)
+		processToCInPath(filePath, isCI, isPlaceholderRequired)
 	})
 }
