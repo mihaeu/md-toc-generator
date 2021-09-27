@@ -1,6 +1,6 @@
 {
 	"name": "md-toc-generator",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"bin": "bin/md-toc-generator",
 	"main": "src/md-toc-generator.js",
 	"repository": "https://github.com/mihaeu/md-toc-generator",
